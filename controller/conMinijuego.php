@@ -10,61 +10,48 @@ class ConMinijuego {
         $this->modelo = new ModMinijuego();
     }
 
-    public function listar() {
-        // Obtenemos todos los juegos de la base de datos
+    /**
+     * Muestra la pantalla principal con la lista de minijuegos y el historial
+     */
+    public function listarJuegos() {
+        // Obtenemos todos los juegos para la lista principal
         $datos['todos'] = $this->modelo->obtenerTodos();
         
-        /* 
-        * Leemos la cookie llamada 'historial'
-        * Usamos json_decode para convertir la cookie de JSON a un array
-        * Si la cookie no existe inicializamos historial como un array vacio 
-        */
+        // Obtenemos los IDs del historial de la cookie
         $historial = isset($_COOKIE['historial']) ? json_decode($_COOKIE['historial'], true) : [];
         
-        // Preparamos un hueco en el array de datos para los juegos recientes
+        // Obtenemos los datos completos de esos 3 IDs
         $datos['recientes'] = [];
-        
-        // Recorremos los IDs guardados en la cookie
         foreach ($historial as $id) {
-            // Por cada ID, consultamos al modelo para traer la información completa
+            // Por cada ID consultamos al modelo para traer la información completa
             $datos['recientes'][] = $this->modelo->obtenerPorId($id);
         }
 
-        // Definimos la vista y devolvemos el array con todos los minijuegos y los recientes
         $this->vista = "listar_juegos.php";
         return $datos;
     }
 
-    public function ver() {
-        // Obtenemos los datos del juego seleccionado
+    /**
+     * Gestiona la selección de un juego y actualiza la cookie
+     */
+    public function seleccionarJuego() {
+
         $id = $_GET['idMinijuego'];
         $datos = $this->modelo->obtenerPorId($id);
 
-        // Recuperamos el historial actual de la cookie
+        // Actualizamos el historial de cookies
         $historial = isset($_COOKIE['historial']) ? json_decode($_COOKIE['historial'], true) : [];
         
-        // Buscamos si el ID del juego actual ya está en el historial.
-        if (($key = array_search($id, $historial)) !== false) {
-            // Si ya estaba, lo borramos de su posición antigua para que no se repita
-            unset($historial[$key]);
-        }
-        
-        // Añadimos el ID del juego actual al PRINCIPIO del array
-        array_unshift($historial, $id); 
-        
-        // Cortamos el array para quedarnos solo con los primeros 3 elementos
-        $historial = array_slice($historial, 0, 3); 
+        // Limpiamos duplicados, ponemos el primero y limitamos a 3
+        $historial = array_diff($historial, [$id]);
+        array_unshift($historial, $id);
+        $historial = array_slice($historial, 0, 3);
         
         /*
-        * setcookie(nombre, valor_texto, caducidad, ruta)
-        * Usamos json_encode para convertir nuestro array de IDs en un string de texto
+        * Creamos la cookie con setcookie(nombre, valor, caducidad, ruta)
+        * Para el valor uso json_encode para convertir el array a JSON
         */
-        setcookie(
-            'historial', 
-            json_encode($historial), 
-            time() + (86400 * 30),
-            "/"
-        ); 
+        setcookie('historial', json_encode($historial), time() + (86400 * 30), "/"); 
 
         $this->vista = "pantalla_juego.php";
         return $datos;

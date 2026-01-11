@@ -4,5 +4,5 @@
     define('MODELO','model/');
 
     define('DEFAULT_CONTROLADOR','Minijuego');
-    define('DEFAULT_METODO','listar');
+    define('DEFAULT_METODO','listarJuegos');
 ?>

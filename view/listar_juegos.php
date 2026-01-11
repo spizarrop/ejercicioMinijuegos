@@ -13,7 +13,7 @@
                         echo "<li><strong>".$reciente['nombre']."</strong></li>";
                     }
                 } else{
-                    echo "<p>No has visitado juegos todavía.</p>";
+                    echo "<p>No has visitado ningún juego todavía.</p>";
                 }
             ?>
         </ul>
@@ -22,7 +22,7 @@
         <?php
             foreach ($datos['todos'] as $fila) {
                 echo "<label>".$fila['nombre']."</label>";
-                echo " <a href='index.php?c=Minijuego&m=ver&idMinijuego=".$fila['idMinijuego']."'>Seleccionar</a>";
+                echo " <a href='index.php?c=Minijuego&m=seleccionarJuego&idMinijuego=".$fila['idMinijuego']."'>Seleccionar</a>";
                 echo "<br>";
             }
         ?>
