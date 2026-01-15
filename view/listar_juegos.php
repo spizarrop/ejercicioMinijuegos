@@ -26,5 +26,7 @@
                 echo "<br>";
             }
         ?>
+        <hr>
+        <a href="index.php?c=Minijuego&m=generarPDF">Generar PDF</a>
     </body>
 </html>

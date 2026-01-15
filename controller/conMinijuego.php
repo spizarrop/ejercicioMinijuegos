@@ -1,12 +1,14 @@
 <?php
 require_once "config/routes.php";
 require_once MODELO."modMinijuego.php";
+require_once "lib/fpdf186/fpdf.php";
 
-class ConMinijuego {
+class ConMinijuego extends FPDF {
     private $modelo;
     public $vista;
 
     public function __construct() {
+        parent::__construct();
         $this->modelo = new ModMinijuego();
     }
 
@@ -56,5 +58,50 @@ class ConMinijuego {
         $this->vista = "pantalla_juego.php";
         return $datos;
     }
+
+    /**
+     * Genera un archivo PDF con la lista de minijuegos
+     */
+    function Header() {
+        /* Para establecer una cabecera en mi PDF, esta se repetirá en todas las páginas */
+        $this->SetFont('Arial','B',18);
+        $this->Cell(200,10, 'Listado de minijuegos disponibles');
+        $this->Ln();
+        $this->Ln();
+        $this->SetFont('Arial','B',12);
+        $this->Cell(100,10, 'Nombre');
+        $this->Cell(150,10, 'URL');
+        $this->Ln();
+        $this->Line(10,40,200,40);
+    }
+    
+    function Footer(){
+        /* Para establecer un pie de página en mi PDF, esta se repetirá en todas las páginas */
+        $this->SetY(-15);
+        $this->SetFont('Arial','I',8);
+        $this->Cell(0,10,utf8_decode('Página '.$this->PageNo()));
+    }
+
+    public function generarPDF() {
+        // Obtenemos todos los juegos para la lista principal
+        $datos['todos'] = $this->modelo->obtenerTodos();
+
+        // Instanciamos la clase
+        $pdf = new ConMinijuego();
+        // Agregamos una página
+        $pdf->AddPage();
+        // Le ponemos un título al PDF
+        $pdf->SetTitle('Listado de juegos PDF');
+        // Añadimos el contenido del PDF
+        $pdf->SetFont('Arial','',12);
+        foreach($datos['todos'] as $dato) {
+            $pdf->Cell(100,10, utf8_decode($dato['nombre']));
+            $pdf->Cell(150,10, utf8_decode($dato['url']));
+            $pdf->Ln();
+        }
+        // Formamos el PDF
+        $pdf->Output();
+    }
+    
 }
 ?>
